@@ -4,6 +4,7 @@
     <title>Place searches</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAlKz0ydxvFMnnKPl2JNYQabeol5p0sIRo&libraries=places&callback=initMap" async defer></script>
     <style>
       html, body {
         height: 100%;
@@ -15,11 +16,10 @@
       }
     </style>
     <script>
-
       var map;
       var infowindow;
       var lokacija;
-
+   
 
        navigator.geolocation.getCurrentPosition(initMap, error);
        function error() {
@@ -76,6 +76,5 @@
   </head>
   <body>
     <div id="map"></div>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDd0_X-WO61QrbsTBHtIwMa8L3Z8mjcpTE&libraries=places&callback=initMap" async defer></script>
   </body>
 </html>

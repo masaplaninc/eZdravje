@@ -370,6 +370,9 @@ function nekaj(podatek) {
 
                 // Name
                 $("#patient-name").html(party.firstNames + ' ' + party.lastNames);
+                
+                //id
+                $(".ehrIdIzpis").html(ehrId);
 
                 // Complete age
                 var age = getAge(formatDateUS(party.dateOfBirth));
@@ -669,7 +672,7 @@ function nekaj(podatek) {
                         })
                     }
                 }
-                $('.patient-bmi').html(bmiVal + bmiDet);
+                $('.patient-bmi').html(bmiVal);
             }
         });
     }
@@ -808,12 +811,12 @@ function nekaj(podatek) {
             days: dateAge
         };
 
-        if (age.years > 1) yearString = "y";
-        else yearString = "y";
+        if (age.years > 1) yearString = "l";
+        else yearString = "l";
         if (age.months > 1) monthString = "m";
         else monthString = "m";
-        if (age.days > 1) dayString = " days";
-        else dayString = " day";
+        if (age.days > 1) dayString = " d";
+        else dayString = " d";
 
 
         if ((age.years > 0) && (age.months > 0) && (age.days > 0))
@@ -880,7 +883,7 @@ function nekaj(podatek) {
 
         var curr_year = d.getFullYear();
 
-        return curr_month + "-" + curr_date + "-" + curr_year;
+        return curr_date + "-" + curr_month + "-" + curr_year;
 
     }
 

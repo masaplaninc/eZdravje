@@ -218,7 +218,7 @@
 
                     var icon, time = data[i].metadata.startTime;
 
-                    this.monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    this.monthNames = ['Januar', 'Februar', 'Marec', 'April', 'Maj', 'Junij', 'Julij', 'August', 'September', 'Oktober', 'November', 'December'];
                     var date = new Date(time);
 
                     var dateAbbr = date.getDate() + '-' + this.monthNames[date.getMonth()];
