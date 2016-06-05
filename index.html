@@ -2,14 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+
+
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
   <title>eZdravje :: 4. DN :: OIS 2015/2016</title>
   <link href="knjiznice/css/bootstrap.min.css" rel="stylesheet">
+  <link href="knjiznice/css/style.css" rel="stylesheet">
   <style>
-    body {padding-top: 70px;}
+    body {padding-top: 70px;
+     }
+    #mapa {width:100%;
+      
+    }
+    .skrito {display:none;}
+    .prva {margin-bottom:10px;}
+    #smrt{height:50px;text-align: center}
+    #nevarnost{text-align:center;margin-top:10px;}
   </style>
-  <script src="knjiznice/js/jquery-2.2.3.min.js"></script>
-  <script src="knjiznice/js/bootstrap.min.js"></script>
-  <script src="knjiznice/js/koda.js"></script>
+    
+  
 </head>
 <body>
 
@@ -22,14 +33,13 @@
           <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
         </button>
         <!-- ZAČETEK: Ime vaše aplikacije -->
-        <a class="navbar-brand" href="index.html">{ime vaše aplikacije}</a>
+        <a class="navbar-brand" href="index.html">Hipohonder 101</a>
         <!-- KONEC: Ime vaše aplikacije -->
       </div>
       <div class="collapse navbar-collapse" id="menujska-vrstica">
         <ul class="nav navbar-nav">
           <li><a href="opis.html">Opis ideje</a></li>
           <li><a href="nacrt.html">Načrt informacijske rešitve</a></li>
-          <li><a href="#">Generiranje podatkov</a></li>
         </ul>
       </div>
     </div>
@@ -38,13 +48,134 @@
 
   <!-- ZAČETEK: Vsebina aplikacije -->
   <div class="container">
-    <div class="row">
-      <div class="col-lg-12 text-center">
-        <p class="lead"><strong>TO-DO</strong>: Na tem mestu implementirajte vašo aplikacijo.</p>
-      </div>
-    </div>
-  </div>
+    <div class="row prva">
+              <div class="col-md-4"> 
+              <b>Izberi</b> bolnika <select onchange="nekaj($('#preberiObstojeciEHR').val());" class="form-control input-sm" id="preberiObstojeciEHR"><option value=""></option></select><button type="button" class="btn btn-primary btn-xs" onclick="generirajPodatke(1);generirajPodatke(2);generirajPodatke(3);">Generiraj podatke</button><span id="sporocilo"></span></div>
+              <div class="col-md-4"><b>Vnesi</b> EHR <input id="vnesiEhr" type="text" placeholder="d564c6a3-5a43-4fcc-bfa7-9ac76e9673bd" class="form-control input-mini"/>
+              <button type="button" class="btn btn-primary btn-xs" onclick="nekaj($('#vnesiEhr').val());">Potrdi izbiro</button>
+              </div>
+             
+           
+        </div>
+        <div class="col-md-9">
+            <div class="well demographics" style="position: relative">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="patient-pic"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="patient-info">
+                            <h4 id="patient-name"></h4>
+                            <p>Age: <span class="patient-age"></span></p>
+                            <p>DOB: <span class="patient-dob"></span></p>
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="ver-spacer left">
+                            <div class="mask"></div>
+                        </div>
+                        <div id="seznamSimptomov">
+                            <b align="center">Dodajte Simptome</b>
+
+                            <select id="simptomi" onchange="dodajSimptom()" class="form-control input-sm">
+                              <option selected="selected">Ni panike</option>
+                              <option value="5">Vročina<37</option>
+                              <option value="10">Rahla slabost</option>
+                              <option value="12">Kašelj</option>
+                              <option value="13">Zamašen nos</option>
+                              <option value="14">Boleče grlo</option>
+                              <option value="15">Vrtoglavica</option>
+                              <option value="20">Glavobol</option>
+                              <option value="30">Bruhanje</option>
+                              <option value="25">Diareja</option>
+                              <option value="40">Vročina>38</option>
+                              <option value="35">Povišan pritisk</option>
+                              <option value="50">Omedlevica</option>
+                              <option value="60">Tiščanje v prsih</option>
+                              <option value="65">Težko dihanje</option>
+                              <option></option>
+                              <option value="999">Pobriši simptome</option>
+
+
+                            </select>
+                            <div id="nevarnost"><b><span id="sporociloNevarnosti"></span></b></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="patient-stats well" style="position: relative">
+                <div class="row">
+                    <div class="col-md-8 bordered">
+                        <div class="row" style="min-height: 57px;">
+                            <div class="col-md-4 bordered centered" style="min-height: 67px;">
+                                <p>Age:</p>
+                                <div class="value patient-age-years"></div>
+                            </div>
+                            <div class="col-md-4 bordered centered" style="min-height: 67px;">
+                                <p>Weight:</p>
+                                <div class="value">
+                                    <span class="weight-placeholder-value"></span> <span class="weight-placeholder-unit"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 centered">
+                                <p>BMI:</p>
+                                <div class="value patient-bmi"></div>
+                            </div>
+                        </div>
+                        <hr>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                            <p>Oxygen Saturation:</p>
+                                            <div class="value last-spo2"></div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-success bar-spo2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                   
+                       <div id="smrt"> <b><span id="sporociloSmrti">Vse je vredu!</span></b></div>
+                        <div id="radial"></div>
+                    </div>
+                </div> <div class="row">
+            	<div id="mapa" class="skrito" style="padding-bottom:50px">
+            		<h1>Bližnje bolnišnice</h1>
+                    <iframe src="bolnisnice.html" width="100%" height="400px"></iframe> 
+            	</div>
+          	 </div>
+            </div>
+          
+      
+        </div>
+          
+        </div>
+       
+       
+
+    
   <!-- KONEC: Vsebina aplikacije -->
+ 
+
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.0-rc.2/jquery-ui.min.js"   integrity="sha256-55Jz3pBCF8z9jBO1qQ7cIf0L+neuPTD1u7Ytzrp2dqo="   crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.0/raphael-min.js"></script>
+<script src="knjiznice/js/morris.min.js"></script>
+<script src="knjiznice/js/handlebars-v1.3.0.js"></script>
+<script src="knjiznice/js/timeline.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+<script src="knjiznice/js/radial-progress-chart.min.js"></script>
+<script src="knjiznice/js/koda.js"></script>
+
 
 </body>
 </html>

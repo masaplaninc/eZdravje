@@ -1,299 +1,4 @@
-
-var baseUrl = 'https://rest.ehrscape.com/rest/v1';
-var queryUrl = baseUrl + '/query';
-
-var username = "ois.seminar";
-var password = "ois4fri";
-
-
-/**
- * Prijava v sistem z privzetim uporabnikom za predmet OIS in pridobitev
- * enolične ID številke za dostop do funkcionalnosti
- * @return enolični identifikator seje za dostop do funkcionalnosti
- */
-function getSessionId() {
-    var response = $.ajax({
-        type: "POST",
-        url: baseUrl + "/session?username=" + encodeURIComponent(username) +
-                "&password=" + encodeURIComponent(password),
-        async: false
-    });
-    return response.responseJSON.sessionId;
-}
-
-
-/**
- * Generator podatkov za novega pacienta, ki bo uporabljal aplikacijo. Pri
- * generiranju podatkov je potrebno najprej kreirati novega pacienta z
- * določenimi osebnimi podatki (ime, priimek in datum rojstva) ter za njega
- * shraniti nekaj podatkov o vitalnih znakih.
- * @param stPacienta zaporedna številka pacienta (1, 2 ali 3)
- * @return ehrId generiranega pacienta
- */
-function generirajPodatke(stPacienta) {
-	sessionId = getSessionId();
-  	
-if (stPacienta==1) {
-$.ajaxSetup({
-		    headers: {"Ehr-Session": sessionId}
-		});
-
-$.ajax({
-    url: baseUrl + "/ehr",
-    type: 'POST',
-    success: function (data) {
-        var ehrId = data.ehrId;
-    
-
-        // build party data
-        var partyData = {
-            firstNames: "Maja",
-            lastNames: "Novak",
-            dateOfBirth: "1966-4-18T12:30",
-            partyAdditionalInfo: [
-                {
-                    key: "ehrId",
-                    value: ehrId
-                }
-            ]
-        };
-        $.ajax({
-            url: baseUrl + "/demographics/party",
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(partyData),
-            success: function (party) {
-                if (party.action == 'CREATE') {
-                    $('#preberiObstojeciEHR').append($('<option>', {
-					    value: ehrId,
-					    text: partyData.firstNames + ' ' + partyData.lastNames
-					}));
-					$("#sporocilo").html("<span class='obvestilo label label-success'>Uspešno kreirani bolniki.</span>");
-                }
-            }
-        });dodajMeritveVitalnihZnakov(1,ehrId); 
-    }
-});
-
-	
-}
-if (stPacienta==2) {
-$.ajaxSetup({
-            headers: {"Ehr-Session": sessionId}
-        });
-
-$.ajax({
-    url: baseUrl + "/ehr",
-    type: 'POST',
-    success: function (data) {
-        var ehrId = data.ehrId;
-    
-
-        // build party data
-        var partyData = {
-            firstNames: "Rok",
-            lastNames: "Zdravc",
-            dateOfBirth: "1982-9-18T15:30",
-            partyAdditionalInfo: [
-                {
-                    key: "ehrId",
-                    value: ehrId
-                }
-            ]
-        };
-        $.ajax({
-            url: baseUrl + "/demographics/party",
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(partyData),
-            success: function (party) {
-                if (party.action == 'CREATE') {
-                    $('#preberiObstojeciEHR').append($('<option>', {
-                        value: ehrId,
-                        text: partyData.firstNames + ' ' + partyData.lastNames
-                    }));
-                    $("#sporocilo").html("<span class='obvestilo label label-success'>Uspešno kreirani bolniki.</span>");
-                }
-            }
-        });dodajMeritveVitalnihZnakov(2,ehrId); 
-    }
-});
-
-    
-}
-
-if (stPacienta==3) {
-$.ajaxSetup({
-            headers: {"Ehr-Session": sessionId}
-        });
-
-$.ajax({
-    url: baseUrl + "/ehr",
-    type: 'POST',
-    success: function (data) {
-        var ehrId = data.ehrId;
-    
-
-        // build party data
-        var partyData = {
-            firstNames: "Nejc",
-            lastNames: "Kralj",
-            dateOfBirth: "1954-5-18T15:30",
-            partyAdditionalInfo: [
-                {
-                    key: "ehrId",
-                    value: ehrId
-                }
-            ]
-        };
-        $.ajax({
-            url: baseUrl + "/demographics/party",
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(partyData),
-            success: function (party) {
-                if (party.action == 'CREATE') {
-                    $('#preberiObstojeciEHR').append($('<option>', {
-                        value: ehrId,
-                        text: partyData.firstNames + ' ' + partyData.lastNames
-                    }));
-                    $("#sporocilo").html("<span class='obvestilo label label-success'>Uspešno kreirani bolniki.</span>");
-                }
-            }
-        });dodajMeritveVitalnihZnakov(3,ehrId); 
-    }
-});
-
-    
-}
-}
-
-function dodajMeritveVitalnihZnakov(st, ehr) {
-	sessionId = getSessionId();
-	if (st==1) {
-
-	
-
-	var ehrId = ehr;
-	var podatki = {
-			// Struktura predloge je na voljo na naslednjem spletnem naslovu:
-      // https://rest.ehrscape.com/rest/v1/template/Vital%20Signs/example
-		    "ctx/language": "en",
-		    "ctx/territory": "SI",
-		    "vital_signs/height_length/any_event/body_height_length": 185,
-		    "vital_signs/body_weight/any_event/body_weight": 82.00,
-		   	"vital_signs/body_temperature/any_event/temperature|magnitude": 36.5,
-		    "vital_signs/body_temperature/any_event/temperature|unit": "°C",
-		    "vital_signs/blood_pressure/any_event/systolic": 118,
-		    "vital_signs/blood_pressure/any_event/diastolic": 92,
-		    "vital_signs/indirect_oximetry:0/spo2|numerator": 98
-		};
-		var parametriZahteve = {
-		    ehrId: ehrId,
-		    templateId: 'Vital Signs',
-		    format: 'FLAT',
-		    committer: 'merilec'
-		};
-		$.ajax({
-		    url: baseUrl + "/composition?" + $.param(parametriZahteve),
-		    type: 'POST',
-		    contentType: 'application/json',
-		    data: JSON.stringify(podatki),
-		    success: function (res) {
-		       
-		    },
-		    error: function(err) {
-		    	
-		    }
-		}); 
-
-
-		
-	}
-	if (st==2) {
-        setTimeout(function() {
-    
-
-    var ehrId = ehr;
-    var podatki = {
-            // Struktura predloge je na voljo na naslednjem spletnem naslovu:
-      // https://rest.ehrscape.com/rest/v1/template/Vital%20Signs/example
-            "ctx/language": "en",
-            "ctx/territory": "SI",
-            "vital_signs/height_length/any_event/body_height_length": 170,
-            "vital_signs/body_weight/any_event/body_weight": 79.00,
-            "vital_signs/body_temperature/any_event/temperature|magnitude": 36.5,
-            "vital_signs/body_temperature/any_event/temperature|unit": "°C",
-            "vital_signs/blood_pressure/any_event/systolic": 118,
-            "vital_signs/blood_pressure/any_event/diastolic": 92,
-            "vital_signs/indirect_oximetry:0/spo2|numerator": 90
-        };
-        var parametriZahteve = {
-            ehrId: ehrId,
-            templateId: 'Vital Signs',
-            format: 'FLAT',
-            committer: 'merilec'
-        };
-        $.ajax({
-            url: baseUrl + "/composition?" + $.param(parametriZahteve),
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(podatki),
-            success: function (res) {
-               
-            },
-            error: function(err) {
-                
-            }
-        }); 
-
-            }, 100);
-        
-    }
-	if (st==3) {
-        setTimeout(function() {
-		var ehrId = ehr;
-	var podatki = {
-			// Struktura predloge je na voljo na naslednjem spletnem naslovu:
-      // https://rest.ehrscape.com/rest/v1/template/Vital%20Signs/example
-		    "ctx/language": "en",
-		    "ctx/territory": "SI",
-		    "vital_signs/height_length/any_event/body_height_length": 172,
-		    "vital_signs/body_weight/any_event/body_weight": 62.00,
-		   	"vital_signs/body_temperature/any_event/temperature|magnitude": 36.5,
-		    "vital_signs/body_temperature/any_event/temperature|unit": "°C",
-		    "vital_signs/blood_pressure/any_event/systolic": 115,
-		    "vital_signs/blood_pressure/any_event/diastolic": 95,
-		    "vital_signs/indirect_oximetry:0/spo2|numerator": 94
-		};
-		var parametriZahteve = {
-		    ehrId: ehrId,
-		    templateId: 'Vital Signs',
-		    format: 'FLAT',
-		    committer: 'merilec'
-		};
-		$.ajax({
-		    url: baseUrl + "/composition?" + $.param(parametriZahteve),
-		    type: 'POST',
-		    contentType: 'application/json',
-		    data: JSON.stringify(podatki),
-		    success: function (res) {
-		       
-		    },
-		    error: function(err) {
-		    	
-		    }
-		}); 
-
-    },300);
-
-	}
-
-}
-
-// Napolni podatke v pripravljeni obrazec
-function nekaj(podatek) {
-
+$(document).ready(function () {
 
     $(".patient-records").sortable({
         handle: ".panel-heading",
@@ -329,9 +34,7 @@ function nekaj(podatek) {
     // ehrscape API
 
     var baseUrl = "https://rest.ehrscape.com/rest/v1";
-   
-        var ehrId = podatek;
-  
+    var ehrId = '9c38cb10-4738-428e-8922-78a13047e103';
     var username = "ois.seminar";
     var password = "ois4fri";
 
@@ -383,12 +86,24 @@ function nekaj(podatek) {
                 // Age in years
                 $(".patient-age-years").html(getAgeInYears(party.dateOfBirth));
 
+                // Gender
+                var gender = party.gender;
+                $("#patient-gender").html(gender.substring(0, 1) + gender.substring(1).toLowerCase());
 
                 // Patient's picture
-              
-
-                    $('.patient-pic').css('background', 'url(img/Smile.jpg)');
-                
+                var imageUrl;
+                if (party.hasOwnProperty('partyAdditionalInfo')) {
+                    party.partyAdditionalInfo.forEach(function (el) {
+                        if (el.key === 'image_url') {
+                            imageUrl = el.value;
+                        }
+                    });
+                }
+                if (imageUrl !== undefined) {
+                    $('.patient-pic').css('background', 'url(' + imageUrl + ')');
+                } else {
+                    $('.patient-pic').css('background', 'url(img/' + gender.toLowerCase() + '.png)');
+                }
             }
         });
     }
@@ -454,11 +169,37 @@ function nekaj(podatek) {
                 $('.weight-placeholder-value').text(res[0].weight);
                 $('.weight-placeholder-unit').text(res[0].unit);
 
-                
+                var cw = res[0].weight + " " + res[0].unit;
+                $('.last-cw').text(cw);
+                $('.last-cw-date').text(formatDate(res[0].time, true));
 
-               
+                res.forEach(function (el, i, arr) {
+                    var date = new Date(el.time);
+                    el.date = date.getTime();
+                });
 
-                
+                new Morris.Area({
+                    element: 'chart-weight',
+                    data: res.reverse(),
+                    xkey: 'date',
+                    ykeys: ['weight'],
+                    lineColors: ['#4FC1E9', '#3BAFDA'],
+                    labels: ['Weight'],
+                    lineWidth: 2,
+                    pointSize: 3,
+                    hideHover: true,
+                    behaveLikeLine: true,
+                    smooth: false,
+                    resize: true,
+                    xLabels: "day",
+                    xLabelFormat: function (x) {
+                        var date = new Date(x);
+                        return (date.getDate() + '-' + monthNames[date.getMonth()]);
+                    },
+                    dateFormat: function (x) {
+                        return (formatDate(x, false));
+                    }
+                });
             }
         });
     }
@@ -900,170 +641,21 @@ function nekaj(podatek) {
 
     // display page
     login().done(function () {
-        patientData(),
-        getWeight(),
-        getBMI(),
-        getSpo2()
+        patientData().done(function() {
+            $.when(
+                bloodPressures(),
+                getWeight(),
+                getHeight(),
+                getBMI(),
+                getSpo2(),
+                getTemperature(),
+                getPulse(),
+                getAllergies(),
+                getMedications(),
+                getProblems(),
+                getLabs()
+            ).then(logout)
+        });
     });
-
-
-}
-
-
-// Simptomi 
-
-var stanje = 0;
-
-function dodajSimptom() {
-	vrednost = $('#simptomi').val();
-
-	if (vrednost==5) {
-		vrednost1 = "Vročina<37";
-        if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-    }
-    else if (vrednost==10) {
-		vrednost1 = "Rahla slabost";
-    	if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-	}
-	else if (vrednost==12) {
-		vrednost1 = "Kašelj";
-        if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-	}
-	else if (vrednost==13) {
-		vrednost1 = "Zamašen nos";
-	    if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-	}
-	else if (vrednost==14) {
-		vrednost1 = "Boleče grlo";
-	    if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-	}
-	else if (vrednost==15) {
-		vrednost1 = "Vrtoglavica";
-    	if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-	}
-	else if (vrednost==20) {
-		vrednost1 = "Glavobol";
-    	if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-	}
-	else if (vrednost==30) {
-		vrednost1 = "Bruhanje";
-	    if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-	}
-	else if (vrednost==25) {
-		vrednost1 = "Diareja";
-	    if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-	}
-	else if (vrednost==40) {
-		vrednost1 = "Vročina>38";
-	    if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-	}
-	else if (vrednost==35) {
-		vrednost1 = "Povišan pritisk";
-	    if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-	}
-	else if (vrednost==50) {
-		vrednost1 = "Omedlevica";
-    	if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-    }
-	else if (vrednost==60) {
-		vrednost1 = "Tiščanje v prsih";
-	    if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-	}
-	else if (vrednost==65) {
-		vrednost1 = "Težko dihanje";
-	    if ($('#sporociloNevarnosti:contains("'+vrednost1+'")').length == 0) {
-		    stanje = +stanje + +vrednost;		
-	    $('#sporociloNevarnosti').append(vrednost1 +'<br>');
-        stevecNevarnosti.update(stanje);}
-	}
-	
-    else if (vrednost==999) {
-        $('#sporociloNevarnosti').html('');
-        stanje = 0;
-         stevecNevarnosti.update(0);
-    }
-
-if (stanje>=100)     {
-
-	$('#sporociloSmrti').html('KLIČI 112!');
-	    pokaziMapo();
-	}
-	else if (stanje>=80) {
-		$('#sporociloSmrti').html('Takoj pojdite v bolišnico!');
-        pokaziMapo();	
-	}
-	else if (stanje>=60) {
-		$('#sporociloSmrti').html('Čimprej obiščite zdravnika!');
-	}
-	else if (stanje>=40) {
-		$('#sporociloSmrti').html('Če se stanje poslabša, prosim pokličite zdravnika!');
-	}
-	else if (stanje>=20) {
-		$('#sporociloSmrti').html('Nekaj počitka vam bo dobro delo!');
-	}
-	else if (stanje>=10){
-        $('#sporociloSmrti').html('Z vami je vse vredu, nehajte biti hipohoner!');
-	}
-	else {
-        $('#sporociloSmrti').html('Vse je super!');
-	}
-
-}
-
-
-
-function pokaziMapo() {
-    $('#mapa').removeClass('skrito');
-}
-
-var stevecNevarnosti = new RadialProgressChart('#radial', {
-  diameter: 150,
-  max: 100,
-  round: false,
-  series: [{
-    value: 0,
-    color: ['#7CFC00','red']
-  }],
-  center: function(d) {
-    return d.toFixed(0) + ''
-  }
 });
+
